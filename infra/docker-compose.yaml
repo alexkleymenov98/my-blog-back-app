@@ -1,0 +1,38 @@
+version: '3.8'  
+services:  
+  frontend-app:
+    build: ../frontend
+    networks:
+      - blog-network
+    ports:
+      - "80:80"
+  db:
+    image: postgres:latest
+    container_name: database
+    networks:
+      - blog-network
+    environment:
+      - POSTGRES_DB=myblog
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  tomcat:
+    image: tomcat:latest
+    container_name: tomcat-gradle
+    ports:
+      - "8080:8080"
+    networks:
+      - blog-network
+    volumes:
+      # Автоматический деплой WAR-файлов
+      - ../backend/app/build/libs/blog.war:/usr/local/tomcat/webapps/ROOT.war
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  blog-network:
