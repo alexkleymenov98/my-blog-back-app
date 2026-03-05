@@ -29,6 +29,7 @@ services:
     volumes:
       # Автоматический деплой WAR-файлов
       - ../backend/app/build/libs/blog.war:/usr/local/tomcat/webapps/ROOT.war
+      - ../backend/uploads/:/usr/local/tomcat/uploads
     restart: unless-stopped
 
 volumes:
