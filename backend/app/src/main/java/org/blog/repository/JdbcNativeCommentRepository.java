@@ -1,6 +1,7 @@
 package org.blog.repository;
 
 import org.blog.model.Comment;
+import org.blog.model.CreateComment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -37,6 +38,36 @@ public class JdbcNativeCommentRepository implements CommentRepository {
                 ),
                 postId, commentId
         );
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jdbcTemplate.update("delete from comments where id = ?", id);
+    }
+
+    @Override
+    public Comment create(CreateComment createComment) {
+
+        return jdbcTemplate.queryForObject("insert into comments(text, post_id) values(?, ?) returning id, text, post_id;", (rs, rowNum) -> {
+            Comment comment = new Comment();
+            comment.setId(rs.getLong("id"));
+            comment.setText(rs.getString("text"));
+            comment.setPostId(rs.getLong("post_id"));
+
+            return comment;
+        }, createComment.getText(), createComment.getPostId());
+    }
+
+    @Override
+    public Comment update(Comment updateComment) {
+        return jdbcTemplate.queryForObject("update comments set text = ? where id = ? returning id, text, post_id;", (rs, rowNum) -> {
+            Comment comment = new Comment();
+            comment.setId(rs.getLong("id"));
+            comment.setText(rs.getString("text"));
+            comment.setPostId(rs.getLong("post_id"));
+
+            return comment;
+        }, updateComment.getText(), updateComment.getId());
     }
 
 }
