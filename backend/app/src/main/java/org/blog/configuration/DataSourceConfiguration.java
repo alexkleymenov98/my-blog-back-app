@@ -20,6 +20,9 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class DataSourceConfiguration {
 
+    @Value("${spring.datasource.driver}")
+    private String driver;
+
     @Value("${spring.datasource.url}")
     private String url;
 
@@ -37,7 +40,7 @@ public class DataSourceConfiguration {
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
-        dataSource.setDriverClassName(Driver.class.getName());
+        dataSource.setDriverClassName(driver);
         dataSource.setUrl(url);
 
         dataSource.setUsername(username);
