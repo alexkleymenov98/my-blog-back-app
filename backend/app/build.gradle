@@ -15,7 +15,6 @@ repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
-
 dependencies {
     // Spring Context (нужен для @Configuration, @ComponentScan)
     implementation 'org.springframework:spring-context:6.1.14'
@@ -28,6 +27,9 @@ dependencies {
     // PostgreSQL драйвер (одна строка!)
     implementation 'org.postgresql:postgresql:42.7.4'
 
+    // H2 для тестов
+    testImplementation 'com.h2database:h2:2.2.224'
+
     // Spring JDBC (для JdbcTemplate)
     implementation 'org.springframework:spring-jdbc:6.1.14'
 
@@ -36,9 +38,17 @@ dependencies {
     // Servlet API (provided - Tomcat предоставит во время выполнения)
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
-    // Use JUnit test framework.
-    testImplementation libs.junit
+    // ✅ JUnit 5 (ТОЛЬКО ЭТО, НИКАКИХ ДРУГИХ JUnit зависимостей!)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
 
+    // ✅ Spring Test
+    testImplementation 'org.springframework:spring-test:6.1.14'
+
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    // ✅ Mockito для тестов
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'
     // This dependency is used by the application.
     implementation libs.guava
 }
@@ -49,6 +59,18 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+        exceptionFormat = 'full'
+    }
+    // Указываем тестовый профиль
+    systemProperty "spring.profiles.active", "test"
+}
+
 
 war {
     archiveFileName = 'blog.war'
@@ -62,7 +84,3 @@ war {
     }
 }
 
-//application {
-//    // Define the main class for the application.
-//    mainClass = 'org.blog.App'
-//}

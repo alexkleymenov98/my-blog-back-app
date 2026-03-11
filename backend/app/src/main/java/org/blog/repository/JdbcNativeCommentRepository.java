@@ -3,8 +3,11 @@ package org.blog.repository;
 import org.blog.model.Comment;
 import org.blog.model.CreateComment;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -47,27 +50,46 @@ public class JdbcNativeCommentRepository implements CommentRepository {
 
     @Override
     public Comment create(CreateComment createComment) {
+        String sql = "INSERT INTO comments(text, post_id) VALUES(?, ?)";
 
-        return jdbcTemplate.queryForObject("insert into comments(text, post_id) values(?, ?) returning id, text, post_id;", (rs, rowNum) -> {
-            Comment comment = new Comment();
-            comment.setId(rs.getLong("id"));
-            comment.setText(rs.getString("text"));
-            comment.setPostId(rs.getLong("post_id"));
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            return comment;
-        }, createComment.getText(), createComment.getPostId());
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    sql,
+                    PreparedStatement.RETURN_GENERATED_KEYS
+            );
+            ps.setString(1, createComment.getText());
+            ps.setLong(2, createComment.getPostId());
+            return ps;
+        }, keyHolder);
+
+        Comment comment = new Comment();
+        Number key = keyHolder.getKey();
+
+        if (key != null) {
+            comment.setId(key.longValue());
+            comment.setPostId(createComment.getPostId());
+            comment.setText(createComment.getText());
+        }
+
+        return comment;
     }
 
     @Override
     public Comment update(Comment updateComment) {
-        return jdbcTemplate.queryForObject("update comments set text = ? where id = ? returning id, text, post_id;", (rs, rowNum) -> {
+        String sql = "update comments set text = ? where id = ?";
+
+        jdbcTemplate.update(sql, updateComment.getText(), updateComment.getId());
+
+        return jdbcTemplate.queryForObject("select id, text, post_id from comments where id = ?", (rs, rowNum) -> {
             Comment comment = new Comment();
             comment.setId(rs.getLong("id"));
             comment.setText(rs.getString("text"));
             comment.setPostId(rs.getLong("post_id"));
-
             return comment;
-        }, updateComment.getText(), updateComment.getId());
+        }, updateComment.getId());
+
     }
 
 }
