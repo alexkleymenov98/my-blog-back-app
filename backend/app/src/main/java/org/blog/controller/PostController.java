@@ -33,11 +33,6 @@ public class PostController {
             @RequestParam(value = "pageNumber", required = false, defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", required = false, defaultValue = "5") int pageSize) {
 
-        System.out.println(search + " search");
-
-        System.out.println(pageNumber + " number");
-
-        System.out.println(pageSize + " size");
         return service.getAllPosts(search, pageNumber, pageSize);
     }
 

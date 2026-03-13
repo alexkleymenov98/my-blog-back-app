@@ -1,16 +1,14 @@
 package org.blog.model;
 
-import java.util.List;
-
 public class Post {
     private Long id;
     private String title;
     private String text;
-    private List<String> tags;
+    private String[] tags;
     private Integer likesCount;
     private Integer commentsCount;
 
-    public Post(Long id, String title, String text, List<String> tags, Integer likesCount, Integer commentsCount) {
+    public Post(Long id, String title, String text, String[] tags, Integer likesCount, Integer commentsCount) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -49,11 +47,11 @@ public class Post {
         this.text = text;
     }
 
-    public List<String> getTags() {
+    public String[] getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(String[] tags) {
         this.tags = tags;
     }
 
