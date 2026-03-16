@@ -1,18 +1,16 @@
 package org.blog.configuration;
 
-import org.postgresql.Driver;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.sql.DataSource;
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.PropertySource;
 
 
@@ -33,9 +31,6 @@ public class DataSourceConfiguration {
     private String password;
 
 
-    @Autowired
-    private DataSource dataSource;
-
     @Bean()
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -54,18 +49,12 @@ public class DataSourceConfiguration {
         return new JdbcTemplate(dataSource);
     }
 
-    @PostConstruct
-    public void initializeDatabase() {
-        System.out.println("=== Инициализация БД ===");
+    @EventListener
+    public void populate(ContextRefreshedEvent event) {
+        DataSource dataSource = event.getApplicationContext().getBean(DataSource.class);
 
-        try {
-            ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-            populator.addScript(new ClassPathResource("schema.sql"));
-            populator.execute(dataSource);
-            System.out.println("=== БД инициализирована ===");
-        } catch (Exception e) {
-            System.err.println("=== Ошибка: " + e.getMessage());
-            e.printStackTrace();
-        }
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("schema.sql"));
+        populator.execute(dataSource);
     }
 }

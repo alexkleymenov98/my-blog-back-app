@@ -57,7 +57,7 @@ public class JdbcNativeCommentRepository implements CommentRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                     sql,
-                    PreparedStatement.RETURN_GENERATED_KEYS
+                    new String[]{"id"}
             );
             ps.setString(1, createComment.getText());
             ps.setLong(2, createComment.getPostId());
