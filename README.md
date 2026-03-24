@@ -4,10 +4,6 @@
 
 #### Локальный запуск
 ```bash
-# собрать проект
-cd backend
-
-gradle war
 
 # Запустить окружение
 cd ..
@@ -15,10 +11,15 @@ cd infra
 
 docker compose up -d
 
-Поднимутся контейнеры для frontend, postgress и tomcat
+Поднимутся контейнеры для frontend, postgress
+
+# собрать проект
+cd backend_boot
+
+mvn spring-boot:run
 
 Открыть http://localhost
 
 # Запустить тесты
-gradle test
+mvn test
 
